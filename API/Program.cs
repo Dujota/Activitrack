@@ -5,7 +5,7 @@ namespace API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
@@ -17,7 +17,8 @@ namespace API
             {
                 // Service locator pattern, allows us to grab the service we setup for the DataContext
                 var context = services.GetRequiredService<DataContext>(); // service of type DataContext
-                context.Database.Migrate(); // applies any pending migrations for the context and create db if none available
+                await context.Database.MigrateAsync(); // applies any pending migrations for the context and create db if none available
+                await Seed.SeedData(context);
             }
             catch (System.Exception ex)
             {
@@ -26,7 +27,7 @@ namespace API
                 logger.LogError(ex, "An error ocurred during migration");
             }
 
-            host.Run(); // now we run the server
+            await host.RunAsync(); // now we run the server
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
